@@ -1,3 +1,3 @@
-EUVlitho
-1. 2D waveguide model fro EUV lithography
-2. CNN model including M#D effects
+# EUVlitho
+1. 3D waveguide model for EUV lithography simulation
+2. CNN model including M3D effects
