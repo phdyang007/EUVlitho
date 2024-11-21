@@ -33,16 +33,16 @@ int main (int argc,char* argv[])
  double dy = NDIVY;
  const int XDIV=NDIVX/MX;
 
- complex<double> nta(0.9567,0.0343); //absorber complex refrctive index
+ complex<double> nta(0.9567,0.0343); //absorber complex refractive index
  vector< complex<double>> eabs(100); //eabs[0]: top absorber layer dielectric constant, eabs[1]: 2nd absorber layer...
  vector<double> dabs(100); // dabs[0]: top absorber layer thickness, dabs[1]: 2nd absorber layer...
- int NML=40; // number of the multilayer pairs
- int NABS=1; //number of the absorbe layers
+ int NML=40; //number of the multilayer pairs
+ int NABS=1; //number of the absorber layers
  eabs[0]=nta*nta; 
- double dabst=60.; //aborber thickness (nm)
+ double dabst=60.; //total aborber thickness (nm)
  dabs[0]=dabst;
  double z=0; //defocus
- double z0=dabst+42.; //reflection point inside ML
+ double z0=dabst+42.; //reflection point inside ML from the top of the absorber
 
  double lambda,theta0,azimuth,phi0;
  lambda = 13.5; //wavelength (nm)
@@ -52,7 +52,7 @@ int main (int argc,char* argv[])
  phi0 = 90. - azimuth;
  double NA,sigma1,sigma2,openangle;
  NA = 0.33;
- int type=2; //0: circlural, 1: annular, 2: dipole
+ int type=2; //0: circular, 1: annular, 2: dipole
  sigma1 = 0.9; //outer sigma
  sigma2=0.55; //inner sigma
  openangle = 90.; //opening angle for dipole illumination
