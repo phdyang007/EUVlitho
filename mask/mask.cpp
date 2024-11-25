@@ -3,12 +3,12 @@
 #include <cmath>
 using namespace std;
 
-#include "./VBF.h"
+#include "./VBF.h" //mask pattern specification
 
 int main (int argc,char* argv[])
 {
  ofstream ofs("mask.csv");
- int NDIVX =1024;
+ int NDIVX =1024; //mask pattern size (nm)
  int NDIVY =NDIVX;
  int NDIVSQ=NDIVX*NDIVY;
  int* mask2d=new int[NDIVSQ];
