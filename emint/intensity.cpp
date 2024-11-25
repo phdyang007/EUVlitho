@@ -10,7 +10,7 @@ using namespace std;
 #define EIGEN_USE_MKL_ALL
 #include "Eigen/Eigen"
 #include "magma_v2.h"
-#include "/home/tanabe/eigen/source/scalar/include/header.h"
+#include "../include/header.h"
 #define _Complex_I (1.0iF) 
 
 void source(double NA,int type,double sigma1,double sigma2,double openangle,double k,double dx,double dy,
