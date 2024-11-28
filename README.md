@@ -25,7 +25,7 @@ For the explanation of M3D parameters and their CNN fitting please read the foll
 - H. Tanabe, A. Jinguji, and A. Takahashi, “Evaluation of convolutional neural network for fast extreme violet lithography simulation using 3nm node mask patterns,” JM3 22(2023)024201.
 - H. Tanabe, A. Jinguji and A. Takahashi, “Accelerating extreme ultraviolet lithography simulation with weakly guiding approximation and source position dependent transmission cross coefficient formula,” JM3 23(2024)014201.
 
-### Data preparation
+### 2.1. Data preparation
 The first step is the data preparation for the training and validation. 
 
 
