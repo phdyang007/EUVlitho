@@ -1,10 +1,10 @@
 void randmask(int *mask1d, int NDIV, int gap);
 void maskgen(int *mask2d, int NDIVX, int NDIVY)
 {
-  int* mask1dX=new int[NDIVX];
-  int* mask1dY=new int[NDIVY];
-  int cd = 56;
-    int gap=80;
+//  int* mask1dX=new int[NDIVX];
+ int* mask1dY=new int[NDIVY];
+ int cd = 56;
+ int gap=80;
  int sum, space;
  space=rand()%2;
  sum=0; 
@@ -34,7 +34,7 @@ void maskgen(int *mask2d, int NDIVX, int NDIVY)
      mask2d[NDIVX*i+j]=0;
    else
    for(int j=0;j<NDIVY;j++)
-       mask2d[NDIVX*i+j]=mask1dY[j];
+    mask2d[NDIVX*i+j]=mask1dY[j];
   }
 }
 

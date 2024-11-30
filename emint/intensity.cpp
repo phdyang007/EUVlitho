@@ -11,12 +11,16 @@ using namespace std;
 #include "Eigen/Eigen"
 #include "magma_v2.h"
 #include "../include/header.h"
+
 #define _Complex_I (1.0iF) 
+#define XDIV 512  // XDIV=NDIVX/MX
 
 void source(double NA,int type,double sigma1,double sigma2,double openangle,double k,double dx,double dy,
 int&ndivs, vector<vector<vector<int>>>& l0s,vector<vector<vector<int>>>& m0s,vector<vector<int>>& SDIV,int& MX,int& MY);
+
 int main (int argc,char* argv[])
 {
+ magma_init();
  double pi=atan(1.)*4.;
  complex<double> zi (0., 1.);
  char eol[512];
@@ -27,11 +31,10 @@ int main (int argc,char* argv[])
 
  int MX=4; //X magnification
  int MY=4; //Y magnification
- int NDIVX=1024; //X pitch (nm)
+ int NDIVX=2048; //X pitch (nm)
  int NDIVY=NDIVX; //Y pitch (nm)
  double dx =NDIVX;
  double dy = NDIVY;
- const int XDIV=NDIVX/MX;
 
  complex<double> nta(0.9567,0.0343); //absorber complex refractive index
  vector< complex<double>> eabs(100); //eabs[0]: top absorber layer dielectric constant, eabs[1]: 2nd absorber layer...
@@ -59,6 +62,7 @@ int main (int argc,char* argv[])
 
  double sigmadiv=2.; //division angle of the source (degree)
  int ndivs=max(1,int(180./pi*lambda/dx/sigmadiv));
+
  vector<vector<vector<int>>> l0s(ndivs,vector<vector<int>>(ndivs,vector<int>()));
  vector<vector<vector<int>>> m0s(ndivs,vector<vector<int>>(ndivs,vector<int>()));
  vector<vector<int>> SDIV(ndivs,vector<int>(ndivs));
@@ -78,11 +82,6 @@ int main (int argc,char* argv[])
  int NDIVSQ=NDIVX*NDIVY;
  int* mask2d=new int[NDIVSQ];
  Eigen::MatrixXcd pattern(FDIVX,FDIVY);
- for(int i=0;i<NDIVX;i++)
- for(int j=0;j<NDIVY;j++)
- imask>>mask2d[NDIVY*i+j]>>com;
- imask.getline(eol, sizeof(eol));
-
  int lsmaxX=NA*dx/double(MX)/lambda+1;
  int lsmaxY=NA*dy/double(MY)/lambda+1;
  int lpmaxX=NA*dx/double(MX)*2/lambda+0.0001;
@@ -133,27 +132,36 @@ int main (int argc,char* argv[])
  int ncut=0;
  vector<int> linput(Nrange),minput(Nrange);
  for(int ip=0;ip<noutX;ip++) 
- for(int jp=0;jp<noutY;jp++) 
  {
-  int snum=0;
-  for(int is=0;is<nsourceX;is++)
-  for(int js=0;js<nsourceY;js++)
+  for(int jp=0;jp<noutY;jp++) 
   {
-   if(((pow((is-lsmaxX)*MX/dx,2)
-        +pow((js-lsmaxY)*MY/dy,2))<=pow(NA/lambda,2))
-     &&((pow((ip-lpmaxX+is-lsmaxX)*MX/dx,2)
-        +pow((jp-lpmaxY+js-lsmaxY)*MY/dy,2))<=pow(NA/lambda,2)))
+   int snum=0;
+   for(int is=0;is<nsourceX;is++)
    {
-    snum++;
+     for(int js=0;js<nsourceY;js++)
+     {
+      if(((pow((is-lsmaxX)*MX/dx,2)
+           +pow((js-lsmaxY)*MY/dy,2))<=pow(NA/lambda,2))
+          &&((pow((ip-lpmaxX+is-lsmaxX)*MX/dx,2)
+           +pow((jp-lpmaxY+js-lsmaxY)*MY/dy,2))<=pow(NA/lambda,2)))
+       {
+        snum+=1;
+       }
+     }
+    }
+   if(snum>0)
+   {
+    linput[ncut]=ip-lpmaxX;
+    minput[ncut]=jp-lpmaxY;
+    ncut++;
    }
   }
-  if(snum>0)
-  {
-   linput[ncut]=ip-lpmaxX;
-   minput[ncut]=jp-lpmaxY;
-   ncut++;
-  }
  }
+
+ for(int i=0;i<NDIVX;i++)
+ for(int j=0;j<NDIVY;j++)
+ imask>>mask2d[NDIVY*i+j]>>com;
+ imask.getline(eol, sizeof(eol));
 
  vector<vector<vector<vector<vector<double>>>>> isum(ndivs,vector<vector<vector<vector<double>>>>
   (ndivs,vector<vector<vector<double>>>(XDIV,vector<vector<double>>(XDIV,vector<double>(SDIVMAX)))));
@@ -175,29 +183,29 @@ for(int nsy=0;nsy<ndivs;nsy++)
  sx0 = 2.*pi/dx*nsx/double(ndivs)+kx0;
  sy0 = 2.*pi/dy*nsy/double(ndivs)+ky0;
 
- vector<vector<Eigen::VectorXcd>> Ax(nsourceX, vector(nsourceY, Eigen::VectorXcd(Nrange)));
-
-//  ampS calculates the diffraction amplitude (vector potential). This routine in included in header.h.
+// ampS calculates the diffraction amplitude (vector potential). This routine in included in header.h.
 // The input mask pattern is mask2d and the output amplitude is Ax.
 // 'X' specifies the Ax polarization. 'Y' will calculates Ay polarization.
 
+ vector<vector<Eigen::VectorXcd>> Ax(nsourceX, vector(nsourceY, Eigen::VectorXcd(Nrange)));
  ampS('X',Ax, NDIVX, NDIVY, mask2d, LMAX, Lrange2, MMAX, Mrange2, Nrange, lindex, mindex, FDIVX, FDIVY,
       NA, MX, MY, dx, dy, lambda, NABS, NML, lsmaxX, lsmaxY, k, sx0, sy0, eabs, dabs, cexpX,cexpY);
 
  vector<vector<Eigen::MatrixXcd>>  ampxx(nsourceXL, vector<Eigen::MatrixXcd>(nsourceYL));
  for(int is=0;is<nsourceXL;is++)
  for(int js=0;js<nsourceYL;js++)
- {
+  {
     ampxx[is][js].resize(noutXL,noutYL);
     for(int ip=0;ip<noutXL;ip++)
     for(int jp=0;jp<noutYL;jp++)
-      ampxx[is][js](ip,jp)=-1000.;
-  } 
+          ampxx[is][js](ip,jp)=-1000.;
+ } 
 
   for(int is=0;is<nsourceXL;is++)
-  for(int js=0;js<nsourceYL;js++)
   {
-    if((pow((is-lsmaxX)*MX/dx,2)+pow((js-lsmaxY)*MY/dy,2))<=pow(NA/lambda,2))
+   for(int js=0;js<nsourceYL;js++)
+   {
+    if((pow((is-lsmaxX)*MX/dx,2)+pow((js-lsmaxY)*MY/dy,2))<=pow(NA/lambda,2)*1.0)
     {
      for(int n=0;n<Nrange;n++)
      {
@@ -207,6 +215,7 @@ for(int nsy=0;nsy<ndivs;nsy++)
        ampxx[is][js](ip,jp)=Ax[is][js](n);
      }
     }
+   }
   }
 
  vector<Eigen::VectorXcd> Ex0m(SDIV[nsx][nsy], Eigen::VectorXcd(ncut)), Ey0m(SDIV[nsx][nsy], Eigen::VectorXcd(ncut)),
@@ -244,6 +253,7 @@ for(int nsy=0;nsy<ndivs;nsy++)
     Ay= ampxx[ls][ms](ip,jp)/sqrt(k*k-ky*ky);
     Ax=0.;
    }
+
    complex<double>  EAx, EAy, EAz;
    EAx=zi*k*Ax-zi/k*(pow(kxplus,2.)*Ax+kxplus*kyplus*Ay);
    EAy=zi*k*Ay-zi/k*(kxplus*kyplus*Ax+pow(kyplus,2.)*Ay);
@@ -251,74 +261,155 @@ for(int nsy=0;nsy<ndivs;nsy++)
    Ex0m[is](i) = EAx;
    Ey0m[is](i) = EAy;
    Ez0m[is](i) = EAz;
+
+/*  For high NA optics
+
+     complex<double> Exm = EAx;
+     complex<double> Eym = EAy;
+     complex<double> Ezm = EAz;
+     complex<double> ETEm, ETMm, Ex0mn,Ey0mn,Ez0mn;
+     double eps=0.0000000001;
+     if (abs(kxplus-sx0)<eps && abs(kyplus-sy0)<eps)
+     {
+	Ex0mn = sqrt(abs(Exm)*abs(Exm) + abs(Eym)*abs(Eym) + abs(Ezm)*abs(Ezm))
+          /sqrt(abs(Exm)*abs(Exm) + abs(Eym)*abs(Eym)) * Exm;
+	Ey0mn = sqrt(abs(Exm)*abs(Exm) + abs(Eym)*abs(Eym) + abs(Ezm)*abs(Ezm))
+          /sqrt(abs(Exm)*abs(Exm) + abs(Eym)*abs(Eym)) * Eym;
+	Ez0mn = 0.;
+     }
+     else
+     {
+	//----------------Mask-------------
+	double kz0 = -sqrt(k*k - sx0*sx0 - sy0*sy0);
+
+	//k1
+	double kx1 = kxplus;
+	double ky1 = kyplus;
+	double kz1 = -sqrt(k*k - kx1*kx1 - ky1*ky1);
+
+	//n ~ k0 x k1
+	double AAx = sy0 * kz1 - kz0 * ky1;
+	double AAy = kz0 * kx1 - sx0 * kz1;
+	double AAz = sx0 * ky1 - sy0 * kx1;
+        double norm=sqrt(AAx*AAx + AAy*AAy + AAz*AAz);
+	double nAx = AAx /norm ;
+	double nAy = AAy /norm;
+	double nAz = AAz /norm;
+
+	//t ~ k1 x n
+	double Bx = ky1 * nAz - kz1 * nAy;
+	double By = kz1 * nAx - kx1 * nAz;
+	double Bz = kx1 * nAy - ky1 * nAx;
+        norm=sqrt(Bx*Bx + By*By + Bz*Bz);
+	double nBx = Bx /norm;
+	double nBy = By /norm;
+	double nBz = Bz /norm;
+
+	//ETE, ETM
+	ETEm = Exm * nAx + Eym * nAy + Ezm * nAz;
+	ETMm = Exm * nBx + Eym * nBy + Ezm * nBz;
+
+	//----------------Wafer-------------
+
+	//k'
+	double kx2 = MX * (kxplus-sx0);
+	double ky2 = MY* (kyplus-sy0);
+	double kz2 = -sqrt(k*k - kx2*kx2 - ky2*ky2);
+
+	//n'~ ez x k'
+	double Cx = ky2;
+	double Cy = -kx2;
+	double Cz = 0;
+        norm=sqrt(Cx*Cx + Cy*Cy + Cz*Cz);
+	double nCx = Cx /norm;
+	double nCy = Cy /norm;
+	double nCz = Cz /norm;
+
+	//t'~k' x n'
+	double Dx = ky2 * nCz - kz2 * nCy;
+	double Dy = kz2 * nCx - kx2 * nCz;
+	double Dz = kx2 * nCy - ky2 * nCx;
+        norm=sqrt(Dx*Dx + Dy*Dy + Dz*Dz);
+	double nDx = Dx / norm;
+	double nDy = Dy / norm;
+	double nDz = Dz / norm;
+
+	//Ex, Ey, Ez
+	Ex0mn = ETEm * nCx + ETMm * nDx;
+	Ey0mn = ETEm * nCy + ETMm * nDy;
+	Ez0mn = ETEm * nCz + ETMm * nDz;
+      }
+
+   Ex0m[is](i) = Ex0mn;
+   Ey0m[is](i) = Ey0mn;
+   Ez0m[is](i) = Ez0mn;
+*/
   }
  }
 
  for (int is = 0; is < SDIV[nsx][nsy]; is++)
  {
-  double _Complex fnx[XDIV][XDIV],fny[XDIV][XDIV],fnz[XDIV][XDIV]; 
-  #pragma omp parallel for
-  for(int i=0;i<XDIV;i++)
-  for(int j=0;j<XDIV;j++)
+ static double _Complex fnx[XDIV][XDIV],fny[XDIV][XDIV],fnz[XDIV][XDIV]; 
+ #pragma omp parallel for
+ for(int i=0;i<XDIV;i++)
+ for(int j=0;j<XDIV;j++)
+ {
+  fnx[i][j]=0.;
+  fny[i][j]=0.;
+  fnz[i][j]=0.;
+ }
+ complex <double> fx,fy,fz;
+ double kxn,kyn;
+ for (int n = 0; n < ncut; n++)
+ {
+  kxn = 2.*pi/dx*nsx/double(ndivs)+2.*pi/dx*l0s[nsx][nsy][is]  + 2.*pi*linput[n] / dx ;
+  kyn = 2.*pi/dy*nsy/double(ndivs)+2.*pi/dy*m0s[nsx][nsy][is]  + 2.*pi*minput[n] / dy ;
+  if ((MX*MX*kxn*kxn+MY*MY*kyn*kyn) <= pow(NA*k,2))
   {
-   fnx[i][j]=0.;
-   fny[i][j]=0.;
-   fnz[i][j]=0.;
+   complex<double> phase;
+   phase=exp(zi*((kxn+kx0)*(kxn+kx0)+(kyn+ky0)*(kyn+ky0))/2./k*z0+zi*(MX*MX*kxn*kxn+MY*MY*kyn*kyn)/2./k*double(z));
+   fx=Ex0m[is](n)*phase;
+   fy=Ey0m[is](n)*phase;
+   fz=Ez0m[is](n)*phase;
+   int ix=linput[n];
+   int iy=minput[n];
+   int px=(ix+XDIV)%XDIV;
+   int py=(iy+XDIV)%XDIV;
+   fnx[px][py]=real(fx)+imag(fx)*_Complex_I;
+   fny[px][py]=real(fy)+imag(fy)*_Complex_I;
+   fnz[px][py]=real(fz)+imag(fz)*_Complex_I;
   }
-  complex <double> fx,fy,fz;
-  double kxn,kyn;
-  for (int n = 0; n < ncut; n++)
-  {
-   kxn = 2.*pi/dx*nsx/double(ndivs)+2.*pi/dx*l0s[nsx][nsy][is]  + 2.*pi*linput[n] / dx ;
-   kyn = 2.*pi/dy*nsy/double(ndivs)+2.*pi/dy*m0s[nsx][nsy][is]  + 2.*pi*minput[n] / dy ;
-   if ((MX*MX*kxn*kxn+MY*MY*kyn*kyn) <= pow(NA*k,2))
-   {
-    complex<double> phase;
-    phase=exp(zi*((kxn+kx0)*(kxn+kx0)+(kyn+ky0)*(kyn+ky0))/2./k*z0+zi*(MX*MX*kxn*kxn+MY*MY*kyn*kyn)/2./k*double(z));
-    fx=Ex0m[is](n)*phase;
-    fy=Ey0m[is](n)*phase;
-    fz=Ez0m[is](n)*phase;
-    int ix=linput[n];
-    int iy=minput[n];
-    int px=(ix+XDIV)%XDIV;
-    int py=(iy+XDIV)%XDIV;
-    fnx[px][py]=real(fx)+imag(fx)*_Complex_I;
-    fny[px][py]=real(fy)+imag(fy)*_Complex_I;
-    fnz[px][py]=real(fz)+imag(fz)*_Complex_I;
-   }
-  }
-  status = DftiComputeBackward(my_desc1_handle, fnx);
-  status = DftiComputeBackward(my_desc1_handle, fny);
-  status = DftiComputeBackward(my_desc1_handle, fnz);
-  #pragma omp parallel for
-  for(int i=0;i<XDIV;i++)
-  for(int j=0;j<XDIV;j++)
-  {
+ }
+ status = DftiComputeBackward(my_desc1_handle, fnx);
+ status = DftiComputeBackward(my_desc1_handle, fny);
+ status = DftiComputeBackward(my_desc1_handle, fnz);
+ #pragma omp parallel for
+ for(int i=0;i<XDIV;i++)
+ for(int j=0;j<XDIV;j++)
+ {
    isum[nsx][nsy][i][j][is] = __real__ fnx[i][j]*__real__ fnx[i][j]
                  +__imag__ fnx[i][j]*__imag__ fnx[i][j]
                  +__real__ fny[i][j]*__real__ fny[i][j]
                  +__imag__ fny[i][j]*__imag__ fny[i][j]
                  +__real__ fnz[i][j]*__real__ fnz[i][j]
                  +__imag__ fnz[i][j]*__imag__ fnz[i][j];
-  }
  }
-
+ }
  if(ipl==0)
-  {
+ {
    #pragma omp parallel for
    for(int i=0;i<XDIV;i++)
    for(int j=0;j<XDIV;j++)
    for (int is = 0; is < SDIV[nsx][nsy]; is++)
-    isum0[nsx][nsy][i][j][is] =isum[nsx][nsy][i][j][is];
-  }
+   isum0[nsx][nsy][i][j][is] =isum[nsx][nsy][i][j][is];
  }
-}
+ }
+ }
  status = DftiFreeDescriptor(&my_desc1_handle);
 
  ofsint<<"data,1"<<endl;
  ofsint<<"memo1"<<endl;
  ofsint<<"memo2"<<endl;
-
  for(int i=0;i<XDIV;i++)
  {
   double x=i*dx/double(XDIV);
@@ -337,11 +428,11 @@ for(int nsy=0;nsy<ndivs;nsy++)
    {
     for (int is = 0; is < SDIV[nsx][nsy]; is++)
     {
-     sum += isum0[nsx][nsy][i][j][is];
+    sum += isum0[nsx][nsy][i][j][is];
 //    sum += isum0[nsx][nsy][i][j][is]+isum[nsx][nsy][i][j][is];
     }
    }
-   ofsint << ","<<sum/SDIVSUM;
+    ofsint << ","<<sum/SDIVSUM;
 //   ofsint << ","<<sum /2./SDIVSUM;
   }
   ofsint << endl;
@@ -365,24 +456,24 @@ int& ndivs, vector<vector<vector<int>>>& l0s,vector<vector<vector<int>>>& m0s,ve
  for(int nsy=0;nsy<ndivs;nsy++)
  {
   SDIV[nsx][nsy]=0;
-  for(int l=-l0max;l<=l0max;l++)
-  for(int m=-m0max;m<=m0max;m++)
-  {
-   double skx=l*dkxang+2.*pi/dx*nsx/double(ndivs);
-   double sky=m*dkyang+2.*pi/dy*nsy/double(ndivs);
-   double skxo=skx*MX;
-   double skyo=sky*MY;
-   if(((type==0)&&(skxo*skxo+skyo*skyo)<=pow(k*NA*sigma1,2))
-      ||((type==1)&&(sqrt(skxo*skxo+skyo*skyo)<=k*NA*sigma1)&&(sqrt(skxo*skxo+skyo*skyo)>=k*NA*sigma2))
-      ||((type==2)&&(sqrt(skxo*skxo+skyo*skyo)<=k*NA*sigma1)&&(sqrt(skxo*skxo+skyo*skyo)>=k*NA*sigma2)
-        &&(abs(skyo)<=abs(skxo)*tan(pi*openangle/180./2.))))
-   {
-    l0s[nsx][nsy].push_back(l);
-    m0s[nsx][nsy].push_back(m);
-    SDIV[nsx][nsy]++;
-   }
+   for(int l=-l0max;l<=l0max;l++)
+   for(int m=-m0max;m<=m0max;m++)
+    {
+      double skx=l*dkxang+2.*pi/dx*nsx/double(ndivs);
+      double sky=m*dkyang+2.*pi/dy*nsy/double(ndivs);
+      double skxo=skx*MX;
+      double skyo=sky*MY;
+      if(((type==0)&&(skxo*skxo+skyo*skyo)<=pow(k*NA*sigma1,2))
+         ||((type==1)&&(sqrt(skxo*skxo+skyo*skyo)<=k*NA*sigma1)&&(sqrt(skxo*skxo+skyo*skyo)>=k*NA*sigma2))
+         ||((type==2)&&(sqrt(skxo*skxo+skyo*skyo)<=k*NA*sigma1)&&(sqrt(skxo*skxo+skyo*skyo)>=k*NA*sigma2)
+	      &&(abs(skyo)<=abs(skxo)*tan(pi*openangle/180./2.))))
+        {
+         l0s[nsx][nsy].push_back(l);
+         m0s[nsx][nsy].push_back(m);
+         SDIV[nsx][nsy]++;
+        }
+    }
   }
- }
 }
 
 
