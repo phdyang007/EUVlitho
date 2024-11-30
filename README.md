@@ -26,7 +26,9 @@ For the explanation of M3D parameters and their CNN fitting please read the foll
 - H. Tanabe, A. Jinguji and A. Takahashi, “Accelerating extreme ultraviolet lithography simulation with weakly guiding approximation and source position dependent transmission cross coefficient formula,” JM3 23(2024)014201.
 
 ### 2.1. Data preparation
-The first step is the data preparation for the training and validation. Two programs, m3.cpp and compress.py are in cnn/data directory. The first program m3.cpp generates mask patterns (mask.csv), M3D parameters (inputxx) and the list of (l, m) pairs. 
+The first step is the data preparation for the training and validation. Two programs, m3.cpp and compress.py are in cnn/data directory. The first program m3.cpp generates mask patterns (mask.csv), M3D parameters (inputxx) and the list of the diffraction orders (l, m) contributing the image intensity. The maximum diffration orders contributing to the image intensity depend on the mask size and NA. We assume sigma=1. If the third column of the list is 0, M3D parameters ax and ay do not have values.
+
+
 
 
 
