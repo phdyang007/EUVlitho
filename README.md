@@ -3,8 +3,8 @@ EUVlitho includes the following two program sets.
 1. EUV lithography simulator based on the 3D waveguide model
 2. CNN fitting to M3D parameters
 ## Requirements
-EUV lithography simulator depends on MKL, Eigen, CUDA and MAGMA.  
-CNN fitting depends on Pytorch Ligtning.
+EUV lithography simulator depends on oneAPI(2023.2.0), Eigen(3.4.0), CUDA(11.8) and MAGMA(2.6.2).  
+CNN fitting depends on Pytorch Ligtning(2.1.0) and CUDA(12.1).
 ## 1. EUV lithography simulator
 Electromagentic (EM) simulation of the diffraction amplitude from an EUV mask based on the 3D waveguide model.  
 For the theoretical backgrond of the simulation please read the following paper.
