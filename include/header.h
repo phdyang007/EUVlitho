@@ -1211,8 +1211,10 @@ void ampS(char polar, vector<vector<Eigen::VectorXcd>>& Ax, int NDIVX, int NDIVY
  {
   for (int j = 0; j < Nrange; j++)
   {
-   T0L(i,j) = klm[i]*br1[j](i)+al1[j]*br1[j](i);
-   T0R(i,j) = klm[i]*br1[j](i)-al1[j]*br1[j](i);
+   complex<double> tmp;
+   tmp =klm[i]/( zi*k-zi/k*kxplus[i]*kxplus[i]);
+   T0L(i,j) = tmp*B1(i,j)+al1[j]*br1[j](i);
+   T0R(i,j) = tmp*B1(i,j)-al1[j]*br1[j](i);
   }
  }
 
