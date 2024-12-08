@@ -15,8 +15,8 @@ Below is an example of the input mask pattern and the output image intensity. We
 
 ![em](https://github.com/user-attachments/assets/06b9b1c0-39a7-44e9-afda-b7f6678262e8)
 
-## 2. CNN for fast EUV simulation
-For the explanation of CNN for fast EUV simulation please read the following papers.
+## 2. CNN for fast EUV lithography simulation
+For the explanation of CNN for fast EUV lithography simulation please read the following papers.
 - H. Tanabe, S. Sato, and A. Takahashi, “Fast EUV lithography simulation using convolutional neural network,” JM3 20(2021)041202.
 - H. Tanabe and A. Takahashi, “Data augmentation in extreme ultraviolet lithography simulation using convolutional neural network,” JM3 21(2022)041602.
 - H. Tanabe, A. Jinguji, and A. Takahashi, “Evaluation of convolutional neural network for fast extreme violet lithography simulation using 3nm node mask patterns,” JM3 22(2023)024201.
