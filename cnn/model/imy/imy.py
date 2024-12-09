@@ -142,8 +142,8 @@ if __name__ == "__main__":
     nval=5000
 
 #    ncut=1901
-#    ncut=1749
-    ncut=1693
+    ncut=1749
+#    ncut=1693
 
     traindir='/home/tanabe/emsim/SPIE2024/data/basic/train/'
     valdir='/home/tanabe/emsim/SPIE2024/data/basic/validate/'
