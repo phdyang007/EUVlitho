@@ -28,9 +28,9 @@ The figures below show the difference between emint.csv and ftint.csv (EM-FT) an
 ![diff](https://github.com/user-attachments/assets/0c7ca5ab-6309-4368-beb9-4ce08d694f0c)
 ## References
 ### EUV lithography simulator
-- H. Tanabe, A. Junguji and A. Takahashi, "Weakly guiding approximation of a three dimentional waveguide model for extreme ultraviolet lithography simulation," JOSA A 41(2024)1491.
+- H. Tanabe, A. Junguji and A. Takahashi, "Weakly guiding approximation of a three dimentional waveguide model for extreme ultraviolet lithography simulation," JOSA A 41(2024)1491. https://doi.org/10.1364/JOSAA.516610
 ### CNN
-- H. Tanabe, S. Sato, and A. Takahashi, “Fast EUV lithography simulation using convolutional neural network,” JM3 20(2021)041202.
-- H. Tanabe and A. Takahashi, “Data augmentation in extreme ultraviolet lithography simulation using convolutional neural network,” JM3 21(2022)041602.
-- H. Tanabe, A. Jinguji, and A. Takahashi, “Evaluation of convolutional neural network for fast extreme violet lithography simulation using 3nm node mask patterns,” JM3 22(2023)024201.
-- H. Tanabe, A. Jinguji and A. Takahashi, “Accelerating extreme ultraviolet lithography simulation with weakly guiding approximation and source position dependent transmission cross coefficient formula,” JM3 23(2024)014201.
+- H. Tanabe, S. Sato, and A. Takahashi, “Fast EUV lithography simulation using convolutional neural network,” JM3 20(2021)041202. https://doi.org/10.1117/1.JMM.20.4.041202
+- H. Tanabe and A. Takahashi, “Data augmentation in extreme ultraviolet lithography simulation using convolutional neural network,” JM3 21(2022)041602. https://doi.org/10.1117/1.JMM.21.4.041602
+- H. Tanabe, A. Jinguji, and A. Takahashi, “Evaluation of convolutional neural network for fast extreme violet lithography simulation using 3nm node mask patterns,” JM3 22(2023)024201.  https://doi.org/10.1117/1.JMM.22.2.024201
+- H. Tanabe, A. Jinguji and A. Takahashi, “Accelerating extreme ultraviolet lithography simulation with weakly guiding approximation and source position dependent transmission cross coefficient formula,” JM3 23(2024)014201. https://doi.org/10.1117/1.JMM.23.1.014201
