@@ -4,7 +4,7 @@ EUVlitho includes the following two program sets.
 2. CNN for fast EUV simulation
 
 The following paper explains the details of the programs.  
-- H. Tanabe, M. Shimode and A. Takahashi, "Extreme ultraviolet lithography simulator using three-dimensional waveguide model and convolutional neural network for fast simulation," to be published.
+- H. Tanabe, M. Shimode and A. Takahashi, "Rigorous electromagnetic simulator for extreme ultraviolet lithography and convolutional neural network accelerating the simulation," to be published.
 ## Requirements
 EUV lithography simulator depends on oneAPI (2023.2.0), Eigen (3.4.0), CUDA (11.8) and MAGMA (2.6.2).  
 CNN depends on Pytorch Ligtning (2.1.0) and CUDA (12.1).
