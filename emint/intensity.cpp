@@ -279,15 +279,10 @@ for(int nsy=0;nsy<ndivs;nsy++)
      }
      else
      {
-	//----------------Mask-------------
 	double kz0 = -sqrt(k*k - sx0*sx0 - sy0*sy0);
-
-	//k1
 	double kx1 = kxplus;
 	double ky1 = kyplus;
 	double kz1 = -sqrt(k*k - kx1*kx1 - ky1*ky1);
-
-	//n ~ k0 x k1
 	double AAx = sy0 * kz1 - kz0 * ky1;
 	double AAy = kz0 * kx1 - sx0 * kz1;
 	double AAz = sx0 * ky1 - sy0 * kx1;
@@ -295,8 +290,6 @@ for(int nsy=0;nsy<ndivs;nsy++)
 	double nAx = AAx /norm ;
 	double nAy = AAy /norm;
 	double nAz = AAz /norm;
-
-	//t ~ k1 x n
 	double Bx = ky1 * nAz - kz1 * nAy;
 	double By = kz1 * nAx - kx1 * nAz;
 	double Bz = kx1 * nAy - ky1 * nAx;
@@ -304,19 +297,11 @@ for(int nsy=0;nsy<ndivs;nsy++)
 	double nBx = Bx /norm;
 	double nBy = By /norm;
 	double nBz = Bz /norm;
-
-	//ETE, ETM
 	ETEm = Exm * nAx + Eym * nAy + Ezm * nAz;
 	ETMm = Exm * nBx + Eym * nBy + Ezm * nBz;
-
-	//----------------Wafer-------------
-
-	//k'
 	double kx2 = MX * (kxplus-sx0);
 	double ky2 = MY* (kyplus-sy0);
 	double kz2 = -sqrt(k*k - kx2*kx2 - ky2*ky2);
-
-	//n'~ ez x k'
 	double Cx = ky2;
 	double Cy = -kx2;
 	double Cz = 0;
@@ -324,8 +309,6 @@ for(int nsy=0;nsy<ndivs;nsy++)
 	double nCx = Cx /norm;
 	double nCy = Cy /norm;
 	double nCz = Cz /norm;
-
-	//t'~k' x n'
 	double Dx = ky2 * nCz - kz2 * nCy;
 	double Dy = kz2 * nCx - kx2 * nCz;
 	double Dz = kx2 * nCy - ky2 * nCx;
@@ -333,8 +316,6 @@ for(int nsy=0;nsy<ndivs;nsy++)
 	double nDx = Dx / norm;
 	double nDy = Dy / norm;
 	double nDz = Dz / norm;
-
-	//Ex, Ey, Ez
 	Ex0mn = ETEm * nCx + ETMm * nDx;
 	Ey0mn = ETEm * nCy + ETMm * nDy;
 	Ez0mn = ETEm * nCz + ETMm * nDz;
