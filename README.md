@@ -1,7 +1,7 @@
 # EUVlitho
 EUVlitho includes the following two program sets.
 1. Electromagnetic simulator for EUV lithography based on the 3D waveguide model
-2. CNN for fast EUV simulation
+2. CNN reproducing the results of the electromagnetic simulations for fast EUV lithography simulation
 
 The following paper explains the details of the programs.  
 - H. Tanabe, M. Shimode and A. Takahashi, "Rigorous electromagnetic simulator for extreme ultraviolet lithography and convolutional neural network reproducing electromagnetic simulations," to be published.
@@ -16,7 +16,7 @@ Below is an example of the input mask pattern and the output image intensity (EM
 
 ## 2. CNN for fast EUV lithography simulation
 ### 2.1. Data preparation
-The first step is the data preparation for the training and validation. Two programs, m3.cpp and compress.py are in cnn/data directory. The first program m3.cpp generates mask patterns (mask.csv), M3D parameters (inputxx.csv) and the list of the diffraction orders (inputlm.csv). The diffration orders contributing to the image intensity depend on the mask size and NA. If the third column of the list is 0, the diffraction order is close to the boundary of the overlapping area of the pupil and the source (assuming sigma=1). In this case, only a0 has a value and ax and ay do not have values (a0, ax and ay are M3D parameters). The total numbers of a0, ax and ay can be calculated from this list. The second program compress.py transforms mask.csv, inputxx.csv and inputxx.csv into maskdata/mask.npy, ampdata/\*.npy and inputlm/\*.npy which will be used as the inputs for the following CNN training.
+The first step is the data preparation for the training and validation. Two programs, m3.cpp and compress.py are in cnn/data directory. The first program m3.cpp generates mask patterns (mask.csv), M3D parameters (inputxx.csv) and the list of the diffraction orders (inputlm.csv). The diffration orders contributing to the image intensity depend on the mask size and NA. If the third column of the list is 0, the diffraction order is close to the boundary of the overlapping area of the pupil and the source (sigma=1). In this case, only a0 has a value and ax and ay do not have values (a0, ax and ay are M3D parameters). The total numbers of a0, ax and ay can be calculated from this list. The second program compress.py transforms mask.csv, inputxx.csv and inputxx.csv into maskdata/mask.npy, ampdata/\*.npy and inputlm/\*.npy which will be used as the inputs for the following CNN training.
 ### 2.2 CNN training
 The trainig models for a0, ax and ay are in cnn/model directory. For example, the training model for real(a0) is cnn/model/re0/re0.py. Please prepare the maskdata and ampdata for the training and validation. The program also requires inputlm. The data augmentation technique (pattern shift) is used in the program to enlarge the number of the original data set (ndata=20000) to the number of the training data set (ntrain=1000000). M3D parameter a0 is normalized for each diffraction order and the list of the normalization factor is written in factor0.csv. The model after the training model.ckpt and the normarization factor factor0.csv will be used in the following CNN prediction,
 ### 2.3 CNN prediction
