@@ -15,6 +15,7 @@ Main program is emint/intensity.cpp. Please modify the makefile (makeint). The i
 3. Modify makeint
 4. make -f makeint
 5. nohup ./int.out &
+
 Below is an example of the input mask pattern and the output image intensity (EM). We use Graph-R to plot the image intensity but you can use any plottng software.
 
 ![em](https://github.com/user-attachments/assets/06b9b1c0-39a7-44e9-afda-b7f6678262e8)
